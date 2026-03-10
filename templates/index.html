@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Run Flask Notes App</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; color: #333; }
+        h1, h2 { color: #0056b3; }
+        .container { max-width: 900px; margin: auto; background: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .note-list { margin-top: 20px; }
+        .note-item { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+        .note-item h3 { margin-top: 0; color: #007bff; }
+        .note-item p { margin-bottom: 10px; }
+        .note-item .actions a { margin-right: 10px; text-decoration: none; color: #28a745; }
+        .note-item .actions a:hover { text-decoration: underline; }
+        .form-section { background: #e9ecef; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: calc(100% - 22px); padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; }
+        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        .message { margin-top: 15px; padding: 10px; border-radius: 5px; }
+        .message.success { background-color: #d4edda; color: #155724; border-color: #c3e6cb; }
+        .message.error { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Notes</h1>
+
+        <div class="form-section">
+            <h2>Create New Note</h2>
+            <form id="createNoteForm">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" required>
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="5" required></textarea>
+                <button type="submit">Add Note</button>
+            </form>
+            <div id="createMessage" class="message"></div>
+        </div>
+
+        <div class="note-list">
+            <h2>Existing Notes</h2>
+            <div id="notesContainer">
+                <!-- Notes will be loaded here by JavaScript -->
+                <p>Loading notes...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = window.location.origin; // Dynamically get base URL
+
+        async function fetchNotes() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/notes`);
+                const notes = await response.json();
+                const notesContainer = document.getElementById('notesContainer');
+                notesContainer.innerHTML = ''; // Clear existing notes
+
+                if (notes.length === 0) {
+                    notesContainer.innerHTML = '<p>No notes yet. Create one above!</p>';
+                } else {
+                    notes.forEach(note => {
+                        const noteDiv = document.createElement('div');
+                        noteDiv.className = 'note-item';
+                        noteDiv.innerHTML = `
+                            <h3>${note.title}</h3>
+                            <p>${note.content}</p>
+                            <div class="actions">
+                                <a href="#" onclick="editNote('${note.id}', '${note.title}', '${note.content}')">Edit</a>
+                                <a href="#" onclick="deleteNote('${note.id}')">Delete</a>
+                                <a href="#" onclick="processNoteWithGemini('${note.id}', '${note.content}')">Process with Gemini</a>
+                            </div>
+                        `;
+                        notesContainer.appendChild(noteDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching notes:', error);
+                document.getElementById('notesContainer').innerHTML = `<p class="message error">Error loading notes: ${error.message}</p>`;
+            }
+        }
+
+        async function createNote(event) {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const createMessage = document.getElementById('createMessage');
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/notes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ title, content }),
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    createMessage.className = 'message success';
+                    createMessage.textContent = 'Note created successfully!';
+                    document.getElementById('createNoteForm').reset();
+                    fetchNotes(); // Refresh the list
+                } else {
+                    createMessage.className = 'message error';
+                    createMessage.textContent = `Error creating note: ${result.error}`;
+                }
+            } catch (error) {
+                console.error('Error creating note:', error);
+                createMessage.className = 'message error';
+                createMessage.textContent = `Network error: ${error.message}`;
+            }
+        }
+
+        // Placeholder for edit (would typically navigate to an edit page or show a modal)
+        function editNote(id, title, content) {
+            alert(`Simulating edit for Note ID: ${id}
+Title: ${title}
+Content: ${content}`);
+            // In a full app, you'd load an edit form or modal here
+            // For now, redirect to a generic edit page or implement in-place editing
+            // For this demo, we'll keep it simple due to API-centric approach
+        }
+
+        async function deleteNote(id) {
+            if (!confirm(`Are you sure you want to delete note ${id}?`)) {
+                return;
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+                    method: 'DELETE',
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Note ${id} deleted successfully!`);
+                    fetchNotes(); // Refresh the list
+                } else {
+                    alert(`Error deleting note: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting note:', error);
+                alert(`Network error: ${error.message}`);
+            }
+        }
+
+        async function processNoteWithGemini(id, content) {
+            const loadingMessage = `Processing note ${id} with Gemini...`;
+            alert(loadingMessage); // Show immediate feedback
+            try {
+                const response = await fetch(`${API_BASE_URL}/gemini-process-note`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: content }),
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`Gemini Summary for Note ID ${id}:
+${result.summary}`);
+                } else {
+                    alert(`Gemini processing error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error processing note with Gemini:', error);
+                alert(`Network error during Gemini processing: ${error.message}`);
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchNotes();
+            document.getElementById('createNoteForm').addEventListener('submit', createNote);
+        });
+    </script>
+</body>
+</html>
