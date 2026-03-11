@@ -11,7 +11,7 @@ REGION="us-central1" # Choose your desired GCP region
 ARTIFACT_REGISTRY_REPO="notes-app-repo"
 SERVICE_ACCOUNT_NAME="cloud-run-notes-app-sa" # Service account for Cloud Run
 API_GATEWAY_NAME="notes-api-gateway"
-GEMINI_SECRET_NAME="gemini-api-key"
+#GEMINI_SECRET_NAME="gemini-api-key"
 # --------------------
 
 echo "--- Starting GCP Project Setup ---"
@@ -75,7 +75,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/monitoring.metricWriter" # Write metrics
 echo "Roles granted to Cloud Run service account."
-
+'
 # 5. Create Secret Manager secret for Gemini API key
 echo "Creating Secret Manager secret: $GEMINI_SECRET_NAME..."
 # Check if secret exists
@@ -88,7 +88,7 @@ if ! gcloud secrets describe $GEMINI_SECRET_NAME --project=$PROJECT_ID &>/dev/nu
 else
     echo "Secret '$GEMINI_SECRET_NAME' already exists."
 fi
-
+'
 # Grant Cloud Build service account necessary permissions
 echo "Granting Cloud Build service account roles..."
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
@@ -108,6 +108,6 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 echo "Cloud Build service account roles granted."
 
 echo "--- GCP Project Setup Complete ---"
-echo "IMPORTANT: Remember to add your actual Gemini API Key to Secret Manager for the secret '$GEMINI_SECRET_NAME'."
-echo "You can do this via the GCP Console or by running:"
-echo "  echo 'YOUR_ACTUAL_GEMINI_API_KEY' | gcloud secrets versions add $GEMINI_SECRET_NAME --data-file=- --project=$PROJECT_ID"
+#echo "IMPORTANT: Remember to add your actual Gemini API Key to Secret Manager for the secret '$GEMINI_SECRET_NAME'."
+#echo "You can do this via the GCP Console or by running:"
+#echo "  echo 'YOUR_ACTUAL_GEMINI_API_KEY' | gcloud secrets versions add $GEMINI_SECRET_NAME --data-file=- --project=$PROJECT_ID"
