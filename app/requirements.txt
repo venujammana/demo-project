@@ -1,0 +1,4 @@
+Flask==2.3.3
+google-cloud-firestore==2.11.1
+google-cloud-secret-manager==2.18.0
+gunicorn==21.2.0

@@ -1,0 +1,82 @@
+# api_config.yaml
+swagger: '2.0'
+info:
+  title: Notes App API
+  description: API Gateway for the Flask Notes Application
+  version: 1.0.0
+schemes:
+  - https
+produces:
+  - application/json
+paths:
+  /notes:
+    get:
+      summary: Get all notes
+      operationId: getNotes
+      x-google-backend:
+        address: "CLOUD_RUN_SERVICE_URL" # Replace with your Cloud Run service URL
+        protocol: h2
+      responses:
+        200:
+          description: A list of notes
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Note'
+    post:
+      summary: Create a new note
+      operationId: createNote
+      x-google-backend:
+        address: "CLOUD_RUN_SERVICE_URL" # Replace with your Cloud Run service URL
+        protocol: h2
+      parameters:
+        - name: note
+          in: body
+          description: Note object to be created
+          required: true
+          schema:
+            $ref: '#/definitions/NewNote'
+      responses:
+        201:
+          description: Note created successfully
+          schema:
+            $ref: '#/definitions/NoteResponse'
+        400:
+          description: Invalid input
+definitions:
+  Note:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Unique ID of the note
+      title:
+        type: string
+        description: Title of the note
+      content:
+        type: string
+        description: Content of the note
+      timestamp:
+        type: string
+        format: date-time
+        description: Timestamp of when the note was created
+  NewNote:
+    type: object
+    properties:
+      title:
+        type: string
+        description: Title of the note
+      required: true
+      content:
+        type: string
+        description: Content of the note
+        required: true
+  NoteResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: ID of the created note
+      message:
+        type: string
+        description: Confirmation message
