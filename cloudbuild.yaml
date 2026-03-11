@@ -1,7 +1,6 @@
 # cloudbuild.yaml
-logsBucket: 'gs://${PROJECT_ID}_cloudbuild_logs'
 options:
-  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
+  logging: CLOUD_LOGGING_ONLY
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
