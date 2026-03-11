@@ -20,16 +20,10 @@ steps:
   entrypoint: gcloud
   args: [
     'run',
-    'deploy', 'notes-app-service', # Cloud Run service name
-    '--image', 'us-central1-docker.pkg.dev/${PROJECT_ID}/notes-app-repo/notes-app:${COMMIT_SHA}',
+    'services',
+    'replace', 'notes-app-service.yaml',
     '--region', 'us-central1', # Specify your desired region
-    '--platform', 'managed',
-    '--allow-unauthenticated', # Adjust based on your security needs, API Gateway will handle auth
-    #'--update-secrets', 'GEMINI_API_KEY=gemini-api-key:latest', # Mount secret
-    '--clear-env-vars', # Clear all existing environment variables
-    '--set-env-vars', 'GOOGLE_CLOUD_PROJECT=${PROJECT_ID}', # Set project ID as env var
-    '--remove-env-vars', 'GEMINI_API_KEY', # Remove reference to missing secret
-    '--clear-secrets', # Explicitly remove all mounted secrets
+    '--project', '${PROJECT_ID}', # Specify the project ID
     '--quiet'
   ]
   dir: 'demo-project'
