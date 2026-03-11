@@ -26,22 +26,8 @@ except Exception as e:
     db = None # Set db to None if initialization fails
 
 # --- Gemini API Initialization ---
-def get_gemini_api_key():
-    # In a production Cloud Run environment, this would ideally come from Secret Manager
-    # during cold start or be injected as an environment variable by Cloud Run,
-    # with the Cloud Run service account having access to Secret Manager.
-    # For local development, set GEMINI_API_KEY env var directly.
-    from google.cloud import secretmanager
-    try:
-        client = secretmanager.SecretManagerServiceClient()
-        response = client.access_secret_version(name=GEMINI_API_KEY_SECRET_NAME)
-        return response.payload.data.decode("UTF-8")
-    except Exception as e:
-        print(f"Error accessing Gemini API key from Secret Manager: {e}")
-        print("Falling back to environment variable 'GEMINI_API_KEY' for local development.")
-        return os.environ.get("GEMINI_API_KEY")
-
-GEMINI_API_KEY = get_gemini_api_key()
+# For local development, set GEMINI_API_KEY env var directly.
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
     gemini_model = genai.GenerativeModel('gemini-pro')
