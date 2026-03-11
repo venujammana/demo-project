@@ -75,7 +75,7 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --member="serviceAccount:$SERVICE_ACCOUNT_NAME@$PROJECT_ID.iam.gserviceaccount.com" \
     --role="roles/monitoring.metricWriter" # Write metrics
 echo "Roles granted to Cloud Run service account."
-'
+
 # 5. Create Secret Manager secret for Gemini API key
 echo "Creating Secret Manager secret: $GEMINI_SECRET_NAME..."
 # Check if secret exists
@@ -88,7 +88,7 @@ if ! gcloud secrets describe $GEMINI_SECRET_NAME --project=$PROJECT_ID &>/dev/nu
 else
     echo "Secret '$GEMINI_SECRET_NAME' already exists."
 fi
-'
+
 # Grant Cloud Build service account necessary permissions
 echo "Granting Cloud Build service account roles..."
 PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
