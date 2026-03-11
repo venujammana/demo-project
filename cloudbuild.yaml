@@ -29,6 +29,7 @@ steps:
     '--clear-env-vars', # Clear all existing environment variables
     '--set-env-vars', 'GOOGLE_CLOUD_PROJECT=${PROJECT_ID}', # Set project ID as env var
     '--remove-env-vars', 'GEMINI_API_KEY', # Remove reference to missing secret
+    '--clear-secrets', # Explicitly remove all mounted secrets
     '--quiet'
   ]
   dir: 'demo-project'
