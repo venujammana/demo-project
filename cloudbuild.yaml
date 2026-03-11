@@ -2,11 +2,6 @@
 options:
   logging: CLOUD_LOGGING_ONLY
 steps:
-- name: 'gcr.io/cloud-builders/gcloud'
-  id: 'List demo-project contents'
-  entrypoint: bash
-  args: ['-c', 'ls -R demo-project']
-  dir: '.' # Run from root to list demo-project
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
   args: [
@@ -14,14 +9,12 @@ steps:
     '-t', 'us-central1-docker.pkg.dev/${PROJECT_ID}/notes-app-repo/notes-app:${COMMIT_SHA}',
     './app'
   ]
-  dir: 'demo-project'
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push'
   args: [
     'push',
     'us-central1-docker.pkg.dev/${PROJECT_ID}/notes-app-repo/notes-app:${COMMIT_SHA}'
   ]
-  dir: 'demo-project'
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   id: 'Deploy to Cloud Run'
   entrypoint: gcloud
@@ -36,7 +29,6 @@ steps:
     '--set-env-vars', 'GOOGLE_CLOUD_PROJECT=${PROJECT_ID}', # Set project ID as env var
     '--quiet'
   ]
-  dir: 'demo-project'
 
 images:
 - 'us-central1-docker.pkg.dev/${PROJECT_ID}/notes-app-repo/notes-app:${COMMIT_SHA}'
