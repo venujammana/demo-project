@@ -26,6 +26,7 @@ steps:
     '--platform', 'managed',
     '--allow-unauthenticated', # Adjust based on your security needs, API Gateway will handle auth
     #'--update-secrets', 'GEMINI_API_KEY=gemini-api-key:latest', # Mount secret
+    '--clear-env-vars', # Clear all existing environment variables
     '--set-env-vars', 'GOOGLE_CLOUD_PROJECT=${PROJECT_ID}', # Set project ID as env var
     '--quiet'
   ]
