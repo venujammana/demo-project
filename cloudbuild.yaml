@@ -2,6 +2,11 @@
 options:
   logging: CLOUD_LOGGING_ONLY
 steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: 'List demo-project contents'
+  entrypoint: bash
+  args: ['-c', 'ls -R demo-project']
+  dir: '.' # Run from root to list demo-project
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Build'
   args: [
